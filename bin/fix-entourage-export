@@ -1,0 +1,87 @@
+#!/usr/bin/perl
+use strict;
+
+# $Id: fix-entourage-export,v 1.1 2005/08/05 15:23:01 asc Exp $
+
+use File::Find::Rule;
+use Filehandle;
+use File::Copy;
+
+{
+  &main();
+  exit;
+}
+
+sub main {
+
+  my $maildir = $ARGV[0];
+
+  if (! -d $maildir) {
+    warn "$maildir : $!";
+    return 0;
+  }
+
+  #
+
+  my $rule = File::Find::Rule->new();
+  $rule->file();
+
+  $rule->exec(sub{
+		my $short = shift;
+		my $long  = shift;
+		my $full  = shift;
+
+		if ($short !~ /\.mbox$/) {
+		  return 0;
+		}
+
+		#
+
+		my $orig = "$full.orig";
+
+		if (! -f $orig) {
+		  return 1;
+		}
+
+		#
+
+		if ((stat($file))[9] > (stat($orig))[9]) {
+		  return 1;
+		}
+
+		#
+
+		return 0;
+	      });
+
+  #
+
+  foreach my $file ($rule->in($maildir)) {
+
+    my $orig = "$file.orig";
+    copy($file, $orig);
+
+    my $fh = FileHandle->new();
+    $fh->open(">$file");
+    $fh->print(&clean_file($orig));
+    $fh->close();
+  }
+
+  #
+
+  return 1;
+}
+
+sub clean_file {
+  my $path = shift;
+
+  local $/;
+  undef $/;
+
+  open FH, $path;
+  my $txt = <FH>;
+  close FH;
+
+  $txt =~ s/\r/\n/gm;
+  return $txt;
+}

@@ -1,0 +1,23 @@
+--- #YAML:1.0
+name: MT-Import-Mbox-Importer
+version: 1.0
+author:
+  - Aaron Straup Cope E<lt>ascope@cpan.orgE<gt>
+abstract: ! >-
+  wrapper class for importing a collection of mbox folders using
+  MT::Import::Mbox.
+license: perl
+requires:
+  Config::Simple: ''
+  Date::Parse: ''
+  File::Find::Rule: ''
+  Log::Dispatch: ''
+  MT::Import::Mbox: '>= 1.0'
+  Memoize: ''
+build_requires:
+  Test::Simple: '>= 0.47'
+provides:
+  MT::Import::Mbox::Importer:
+    file: lib/MT/Import/Mbox/Importer.pm
+    version: 1.0
+generated_by: Module::Build version 0.2604
